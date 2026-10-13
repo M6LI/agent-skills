@@ -1,0 +1,26 @@
+QUANT RESEARCH UI — INSTALLATION
+
+Unzip this bundle into the ROOT of your IntelliJ project, preserving the .github directory.
+
+Expected structure:
+  .github/skills/quant-research-ui/SKILL.md
+  .github/skills/quant-research-ui/assets/tokens.css
+
+In IntelliJ, use GitHub Copilot Chat in Agent mode. If needed, enable Agent Skills
+in Settings > GitHub Copilot > Chat > Agent (feature availability depends on plugin version).
+
+To activate, try:
+  Use the quant-research-ui skill to redesign this backtest analysis app.
+  Preserve all calculations, data contracts, and existing functionality.
+  Start by inspecting the codebase, then implement a dark MLflow-inspired research workbench.
+
+Copilot may choose when to load skills automatically. If it fails to recognise
+the skill, ask it to explicitly read .github/skills/quant-research-ui/SKILL.md
+(and assets/tokens.css) before it edits your UI.
+
+The CSS is a starting point, not a required runtime dependency. Do not
+overwrite existing frontend logic or replace real analytical data with mock data.
+
+Sources on agent skill discovery:
+  https://github.blog/changelog/2026-02-13-new-features-and-improvements-in-github-copilot-in-jetbrains-ides-2/
+  https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills
