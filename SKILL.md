@@ -1,80 +1,100 @@
 ---
 name: quant-research-ui
-description: Design, build, and refactor beautiful dark-mode analytical web interfaces for quantitative research, backtesting, financial model diagnostics, signal analysis, ML training experiments, parameter sweeps, and scientific exploration. Use whenever creating or modifying a research dashboard, analytics app, chart-heavy interface, experiment browser, backtest viewer, or model comparison UI. Produces a precise, high-density MLflow-inspired research workbench rather than a generic SaaS dashboard.
-compatibility: Works offline; no browsing, images, paid APIs, remote fonts, or external design references are needed. Use existing project libraries where possible.
+description: Reproduce the visual language of MLflow's dark experiment tracking UI at high fidelity in quantitative analytics apps: the same colour tokens, system-font stack, DuBois-inspired controls, icon vocabulary, tables, navigation, and interaction states. Use for backtest viewers, ML training experiments, signal analysis, RFQ model diagnostics and research tools. Offline specification with project-local implementation assets; do not browse while applying it.
+compatibility: Can be used offline by GitHub Copilot. Exact DuBois components/icons require assets from MLflow or the design-system package to be present; otherwise fidelity is a documented approximation, not a pixel-perfect claim.
 metadata:
-  version: "1.0"
-  aesthetic: "MLflow-inspired dark research workbench"
+  version: "2.0"
+  reference: "MLflow dark tracking UI, public master source inspected 2026-10-13"
+  fidelity: "source-grounded dark tokens and common controls; layout and some primitives approximated"
 ---
 
-# Quant Research UI — the visual and interaction specification
+# Quant Research UI — high-fidelity MLflow dark UI
 
-You are a senior product designer and frontend engineer for institutional-quality analytical software. Build the visual experience specified here, NOT a generic dashboard. The primary reference is the **dark MLflow experiment tracking UI**, particularly its experiment sidebar, compact run tables, dense toolbars, small rectangular metric charts, tabbed run details, and run-to-run visual comparison. Refine its spacing, contrast, information hierarchy, and chart interactions to create a coherent **dark research workbench**. This document is self-contained: never rely on browsing or knowing what MLflow looks like. Do not import MLflow or reproduce its logo/branding.
+**Primary goal: visual fidelity, not reinterpretation.** Implement a research interface that looks like MLflow's dark experiment tracking UI, reusing its dark colour values and DuBois component language instead of restyling it with custom modern-dashboard trends. Change only the information architecture required by the quant application's workflows. The experience should be recognisably MLflow to someone who uses MLflow. Never insert MLflow logos, trademarks, names, or false product affiliations into the user's application.
+
+**Offline instructions:** This entire document and `assets/tokens.css` are self-contained. Read `references/MLFLOW_SOURCE_AUDIT.md` for what is verified (source-derived) versus approximated. An agent must not claim that inaccessible proprietary components, source SVGs or fonts are included. When exact assets are required, use vendored `@databricks/design-system` if available and permitted; if not, implement the documented CSS reproduction and explicitly record the gap. Do not substitute Lucide by default and pretend the icons match.
+
+**Priority on conflicts:** source-derived DuBois dark tokens and component specifications in section 2 > examples/components here > existing project styling. The quant-specific chart and functional requirements remain mandatory. Do not alter numerical computation to achieve style.
 
 ## 1. Non-negotiable identity
 
 The app should resemble a precise scientific instrument: understated, information-dense, quiet, exceptionally legible, desktop-oriented, chart-first, and purpose-built for researchers who scrutinise numbers. UI chrome recedes; data receives attention. Every surface must have a reason to exist.
 
-**A good first impression:** a slim midnight-blue top bar, dark neutral experiment navigation on the left, a nearly-black central work surface, compact tabs and filters, subtle 1px dividers, restrained blue emphasis, a data table or run selection area, and carefully gridded analytical plots with clearly labelled axes.
+**A good first impression:** a restrained dark top bar (not a bright/navy brand stripe), dark experiment navigation on the left, a dark central work surface, compact tabs and filters, subtle 1px dividers, restrained blue emphasis, a data table or run selection area, and carefully gridded analytical plots with clearly labelled axes.
 
 **Never build:** a marketing landing page; an admin template with giant KPI cards; coloured gradient/blur/glass backgrounds; neon outlines; floating pill cards everywhere; oversized empty margins; 20px border radii; fake analytics; emoji navigation; celebratory illustration; huge headings; light surfaces in dark mode; or charts with unlabeled axes. Do not decorate merely to fill space.
 
 **Priorities (highest first):** (1) analytical correctness, (2) legibility, (3) easy comparison, (4) coherent visual hierarchy, (5) interaction discoverability, (6) aesthetics. Visual elegance comes from disciplined detail rather than spectacle.
 
-## 2. Design tokens: treat these as the source of truth
+## 2. MLflow/DuBois dark-mode design tokens: source-grounded
 
-Use CSS variables. Copy from `assets/tokens.css` if bundled and available; otherwise implement the values below. Do not improvise a new palette. Colours are intentionally *design choices*, not claims about MLflow's exact internal CSS.
+These values were taken from `mlflow/server/js/vendor/design-system/dist/dubois-colors.less` in the public MLflow repository, rather than visually sampled. Use `assets/tokens.css`. Distinguish **actual DuBois palette values** from the application-specific assignment of those values to a sidebar, topbar or chart surface, which may depend on the MLflow release.
 
-| Token | Value | Use |
+| Theme role | Exact dark token value | Usage |
 |---|---|---|
-| `--bg-app` | `#0D121A` | Main page background |
-| `--bg-topbar` | `#122B50` | Stable navy top navigation |
-| `--bg-sidebar` | `#101720` | Experiment/project rail |
-| `--bg-surface` | `#141C27` | Panels, chart surfaces |
-| `--bg-surface-raised` | `#192331` | Menus, hoverable containers |
-| `--bg-input` | `#0E1621` | Text fields and filter entry |
-| `--bg-hover` | `#202C3A` | Hover highlight |
-| `--bg-selected` | `#17314D` | Selected run/sidebar item |
-| `--border` | `#2A3544` | Default 1px separators |
-| `--border-soft` | `#212B38` | Table row lines, chart cards |
-| `--text-primary` | `#E7EDF5` | Titles, important values |
-| `--text-secondary` | `#A1B0C1` | Secondary labels |
-| `--text-muted` | `#748398` | Metadata, placeholders |
-| `--accent` | `#63A6FF` | Links, selected tabs, focus |
-| `--accent-hover` | `#8ABDFF` | Interactive hover |
-| `--success` | `#47C6A5` | Verified good/increase when desirable |
-| `--warning` | `#F2B86B` | Warnings, caution |
-| `--danger` | `#F07885` | Failed runs, genuine risk |
-| `--chart-grid` | `#293644` | Subdued plot grid lines |
-| `--chart-axis` | `#91A0B3` | Axis text |
-| `--series-1` | `#69A9FF` | Primary comparison series |
-| `--series-2` | `#F2B86B` | Secondary comparison series |
-| `--series-3` | `#49C5AA` | Third series |
-| `--series-4` | `#C39CF4` | Fourth series |
-| `--series-5` | `#F07F93` | Fifth series |
-| `--series-6` | `#A8C45D` | Sixth series |
+| backgroundPrimary | `#11171C` | Body and data surface |
+| backgroundSecondary | `#1F272D` | Secondary and elevated sections |
+| textPrimary | `#E8ECF0` | Main text |
+| textSecondary | `#92A4B3` | Secondary UI text |
+| textPlaceholder | `#8396A5` | Placeholders |
+| border | `#1F272D` | Hairlines on primary background |
+| borderAccessible | `#C0CDD8` | High-contrast outline when needed |
+| actionPrimaryBackgroundDefault | `#4299E0` | Primary action (theme semantic token) |
+| actionPrimaryBackgroundHover | `#8ACAFF` | Primary action hover |
+| actionDefaultBorderDefault | `#37444F` | Secondary/default button outline |
+| actionDefaultTextDefault | `#E8ECF0` | Button text |
+| actionDefaultIconDefault | `#92A4B3` | Neutral icon |
+| actionDefaultIconHover | `#8ACAFF` | Icon hover |
+| actionLinkDefault | `#4299E0` | Links |
+| actionDisabledBackground | `#37444F` | Disabled surface |
+| actionDisabledText | `#5F7281` | Disabled label |
+| textValidationSuccess | `#3BA65E` | Positive status |
+| textValidationWarning | `#DE7921` | Warning status |
+| textValidationDanger | `#E65B77` | Error status |
+| tableBackgroundUnselectedHover | `rgba(189,205,219,.04)` | Row hover |
+| tableBackgroundSelectedDefault | `rgba(189,205,219,.08)` | Selected row |
+| tableBackgroundSelectedHover | `rgba(189,205,219,.12)` | Selected hover |
+| actionDefaultBackgroundHover | `rgba(138,202,255,.08)` | Quiet default action hover |
+| actionDefaultBackgroundPress | `rgba(138,202,255,.16)` | Pressed action |
 
-Never interpret series colours as profit/loss: series identity and outcome semantics are separate. Use fixed colours per stable run/model identifier across the entire app; do not reshuffle colours on filtering or sorting. Once series exceed six, use direct selection, small multiples, opacity or line patterns instead of generating an unreadable rainbow.
+**Colour semantics:** Use these exact colours for the design-system primitives. Analytical series are a separate identity palette and may use blue/orange/teal/purple provided the hue remains understated. Chart axes must remain legible. Never turn the interface into a navy-led dashboard: the source dark theme has neutral charcoal `#11171C` and `#1F272D` as its base.
 
-**Typography:** use `Inter` only if installed locally; otherwise `Arial`, `Segoe UI`, `system-ui`, sans-serif. Never depend on Google Fonts. Use a tabular-numeric font feature for figures; native monospace only for IDs, code, expressions and precise scientific parameters.
+### Typography: retain the source's default web UI stack
 
-| Role | Size / line height | Weight | Notes |
-|---|---|---|---|
-| App title / experiment title | 20px / 28px | 600 | Single-line or 2-line max |
-| Section title | 14px / 20px | 600 | Avoid loud headings |
-| Panel/chart heading | 12px / 18px | 600 | Left aligned |
-| Standard UI body | 13px / 19px | 400 | Default interface text |
-| Toolbar/control | 12px / 16px | 500 | Compact controls |
-| Table body | 12px / 18px | 400 | Tabular numbers |
-| Table header | 11px / 16px | 600 | Slight tracking; never all-caps by default |
-| Metadata, ticks | 11px / 16px | 400 | Muted, still legible |
-| Important numeric result | 24px / 29px | 600 | Only for genuinely high-salience summaries |
+The vendored `index-dark.css` includes a system stack: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`. For your Windows/IntelliJ workflow, **Segoe UI** is expected to render if available; avoid prescribing Inter or loading Google Fonts. Body size 13px is supported by common DuBois styles. Use numerical tabular alignment. Reserve monospace for IDs, code, and scientific notation.
 
-**Spacing:** 4px base unit. Use 4/8/12/16/20/24px. Primary workspace gutter 20–24px; panel internal padding 14–16px; control group gap 8px; plot grid gap 12px. Avoid 32–64px padding inside research pages.
+| Role | Suggested size/line-height | Status |
+|---|---|---|
+| Base UI/body | `13px / 20px` | Source component reference |
+| Standard button | `13px / 20px` | From vendored CSS |
+| Small button | `13px / 20px` | From vendored CSS |
+| Small metadata/axis labels | `11–12px / 16px` | Quant extension, not verified MLflow token |
+| Panel heading | `13px / 20px`, semibold | Quant extension |
+| Page title | `20px / 28px`, semibold | Quant extension |
 
-**Shape:** inputs, buttons and tabs have 5–6px radius; panels 7px; menus 7px; status pills 4px. Most analytical surfaces have **no visible shadow**, only a 1px border. Popovers can use a subtle shadow `0 10px 28px rgba(0,0,0,.30)`.
+### Components: don't substitute generic visual libraries
 
-**Iconography:** 15–16px simple stroke icons (Lucide or existing icons), stroke width ~1.7–1.9. Icons are secondary to text; label non-obvious actions. Do not install an icon library if existing symbols are adequate.
+The MLflow frontend's `CLAUDE.md` explicitly requires components from `@databricks/design-system` (DuBois): `Button`, `IconButton`, `Input`, `Select`, `Table`, `Tabs`, `Tooltip`, `Popover`, `Drawer`, `Modal`, `Typography`, and others. Its package.json resolves `@databricks/design-system` through a **vendored local file path** (`file:./vendor/design-system`); do **not** assume a standard public `npm install @databricks/design-system` works in another project.
+
+Use the actual components when legitimately available in the local project. Otherwise reproduce their appearance with the local CSS primitives supplied here. Do not install shadcn, Mantine, MUI or Tailwind defaults and call them 'identical'; using these only for unstyled behaviour is acceptable if completely restyled.
+
+**Buttons:** the vendored dark CSS specifies regular `.du-bois-dark-btn` height **40px**, horizontal padding **16px**, font **13px**, radius **4px**; small button **32px** with padding **16px**, font **13px**, radius **4px**. The compiled CSS also contains legacy-prefixed button variants with different specific colours; prefer current DuBois *semantic* action tokens when reproducing the appearance without its implementation. An icon button must use equal width and height, and an accessible name. Do not use invented 5–6px radius or default 31px button height.
+
+**Selects:** the source's single-select selector height is **40px** with **12px** horizontal padding. Use source-style rectangular controls, clean 1px borders and subtle focus blue. Input family should share the 40px height unless the original page clearly uses a compact variant.
+
+**Tabs:** source `.du-bois-dark-tabs-tab` includes **13px** font and **4px 0** padding at the primitive level; final app spacing depends on the tab bar structure. Favor underlined active tab rather than filled modern segmented-pill controls.
+
+**Table:** the vendored stylesheet contains dark table surfaces and thin separators. Source semantic tokens define exact hover/selected colours above. Retain dense aligned rows and understated header background. Row height, table-header size and sticky mechanics are *application-level approximations*, not asserted MLflow defaults.
+
+**Tooltips:** the vendored CSS includes a legacy `4px` corner radius and `6px 8px` padding for `.du-bois-dark-tooltip-inner`; use small tooltips, not large glossy black cards.
+
+### Iconography: DuBois first, not Lucide
+
+The vendored package contains generated DuBois icon exports; verified examples include `SearchIcon`, `FilterIcon`, `DownloadIcon`, `PlusIcon`, `CloseIcon`, `ChevronDownIcon`, `ChevronRightIcon`, `ChartLineIcon`, `BarChartIcon`, `TableIcon`, `FolderIcon`, `RunIcon`, `PlayIcon`, `PauseIcon`, `ClockIcon`, `CalendarIcon`, `CheckIcon`, `WarningIcon`, `InfoIcon`, `CopyIcon`, and `TrashIcon`. Build the icon vocabulary around these actual export names. For an offline agent without package assets, use local, deliberately drawn simple SVGs **but mark them as approximations** rather than pretending their strokes match. Default icon box **16px**, optical alignment to 13px labels; precise glyph path depends on the real icon package.
+
+### Layout and spacing
+
+Source frontend guidance uses `theme.spacing` and demonstrates 4px, 8px, 16px, 24px and 32px spacing roles. Set a consistent 4px grid in CSS. Geometry for the application's shell, split-panes and plot panels is **an adaptation**: it should be visually validated against a screenshot of the chosen MLflow release if pixel-level fidelity matters. Prefer minimal borders, modest radius, no gradient, and no 'KPI-card' look.
 
 ## 3. Macro layout: default research shell
 
@@ -82,7 +102,7 @@ Prefer this geometry at desktop widths 1440–1920px:
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ NAVY TOP BAR  48px   App / project · context             search      export / settings  │
+│ DARK TOP BAR  48px   App / project · context             search      export / settings  │
 ├───────────────────┬────────────────────────────────────────────────────────────────────┤
 │ LEFT NAV  220px   │ Breadcrumb / context  24px                              20px gutter│
 │                   │ Analysis title                         metadata       actions       │
@@ -103,8 +123,8 @@ Prefer this geometry at desktop widths 1440–1920px:
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- Top bar fixed at 48px; the navy strip is the main distinctive brand note. Product name left; only 2–4 top-level destinations, never crowded.
-- Left navigation 216–232px expanded, collapse to a 52px icon rail. Background darker than main panels; divide with a subtle right border. Vertical tree indentation 14–16px. Hover adds quiet grey; active item uses navy-tinted background and a 2px blue left bar. Search in nav only if navigation exceeds ~12 entries.
+- Top bar approximately 48px in this adapted shell (not a verified source dimension); keep it neutral charcoal. Product name left; only 2–4 top-level destinations, never crowded.
+- Left navigation 216–232px expanded, collapse to a 52px icon rail. Background uses the verified secondary charcoal token; divide with a subtle right border. Vertical tree indentation 14–16px. Hover adds subdued translucent grey; active item uses DuBois selected-row colour and a thin blue indicator. Search in nav only if navigation exceeds ~12 entries.
 - The **content header is not a hero**. Title 20px, muted concise subtitle/metadata, tabs under it. Header height determined by content (~90–112px for 2 lines plus tabs), not giant fixed vertical space.
 - Content area is max-width unconstrained for charts/tables: use all available room with 20–24px gutters. Do NOT clamp analytical charts into a narrow centered marketing column.
 - Standard panel header 36–40px, with title left, export/expand/more on right. Content below; plot has own minimum height.
@@ -117,15 +137,15 @@ Prefer this geometry at desktop widths 1440–1920px:
 
 Use noun-based navigation reflecting analysis objects, e.g. `Projects`, `Backtests`, `Models`, `Signals`, `Saved views`, and contextual tabs `Overview`, `Runs`, `Charts`, `Compare`, `Diagnostics`, `Artifacts`. Do not blindly add all of these: use only those supported by actual functionality. An individual single-purpose visualizer may need no permanent sidebar; use the same header, tabs, toolbar, surfaces, and tokens.
 
-Breadcrumbs `Research / Credit / Signal combination` use 11–12px muted text. Selected tab is white text with a thin blue 2px bottom border. Inactive tabs are gray, with 10–14px horizontal padding and 34–38px height. Do not use large capsule tabs for primary navigation.
+Breadcrumbs `Research / Credit / Signal combination` use 11–12px muted text. Selected tab is white text with a thin blue 2px bottom border. Inactive tabs are grey, with a compact baseline and underlined active selection. The source tab primitive is 13px with 4px vertical padding; page-level height is an adaptation. Do not use large capsule tabs for primary navigation.
 
 Controls should preserve user context (active tab, filters, selection, visible charts, axis mode) in URL query params when reasonable. A user's comparison must not disappear when viewing details and returning.
 
 ## 5. Toolbars and controls: compact, aligned and meaningful
 
 - Primary filter row 36–40px high; left aligns search and frequently-used filters; right aligns view toggles, `Export`, and actions. Wrap to a second line rather than horizontally squashing labels.
-- Buttons 30–32px high, border 1px `--border`, background `--bg-surface`, text secondary; hover to raised surface. Primary blue-filled button is reserved for **one significant action** (e.g. Run analysis), and only if there is such an action.
-- Inputs 32px high, 5px radius, 12px text; search icon at left; placeholder specifies search semantics (`Search runs, tags, model IDs`). On focus use a visible 2px accent outline outside border.
+- Use the source-derived 40px regular / 32px small buttons, with 4px corners and exact DuBois dark action colour tokens. Primary blue-filled button is reserved for **one significant action** (e.g. Run analysis), and only if there is such an action.
+- Inputs/selects should generally use the 40px source-referenced control size with 4px radius and 13px text (compact variants only when needed); search icon at left; placeholder specifies search semantics (`Search runs, tags, model IDs`). On focus use a visible blue outline.
 - Dropdowns show text plus subtle chevron; use 8px menu row padding, selected checkmark, and a 1px separator between groups.
 - Keep the most important filter selectors always visible: date/window, instrument universe, benchmark, target horizon, model. Put rare filters in an `Advanced filters` popover with a visible active-filter count.
 - Show filters as inline compact chips only when active; every chip individually removable; `Reset filters` appears only when needed.
@@ -237,7 +257,7 @@ Often no sidebar is needed. Left settings rail 270–320px, right 1–2 large ch
 
 ## 11. Technology strategy
 
-Default for new standalone apps: **React + TypeScript + Vite + CSS variables**, optional Tailwind if already adopted. Use shadcn/Radix primitives selectively for menus, selects and dialogs, heavily restyled with these tokens; do NOT let a component library dictate visual identity. For charts prefer **Apache ECharts** (dataZoom, linked axes, scatter, heatmap, dense time-series) or an existing mature plotting library. For serious tables use **TanStack Table** plus virtualisation when needed; AG Grid is an option if already licensed/installed and its theming is controlled. Use `lucide-react` if it is already available or installation is acceptable.
+Default for new standalone apps: **React + TypeScript + Vite + CSS variables**, optional Tailwind if already adopted. Use shadcn/Radix primitives selectively for menus, selects and dialogs, only for behaviour when DuBois is unavailable; completely override the library visual styles with these tokens and measurements. For charts prefer **Apache ECharts** (dataZoom, linked axes, scatter, heatmap, dense time-series) or an existing mature plotting library. For serious tables use **TanStack Table** plus virtualisation when needed; AG Grid is an option if already licensed/installed and its theming is controlled. Prefer the existing DuBois icon exports if they are in the project. If not, use the included icon vocabulary as a guide; any replacement icons are approximate and must not be described as exact.
 
 If React already exists, use it; do not rewrite a functioning app merely to follow a preferred stack. If a Python plotting framework is the existing app, apply tokens and layout where possible; avoid unjustified cross-stack migration. Where the environment is disconnected, reuse installed dependencies and avoid network APIs, remote fonts, CDN-only assets or screenshots. Use included CSS tokens rather than remote design-system instructions.
 
@@ -257,21 +277,17 @@ Keep calculations and domain semantics separate from UI; chart components accept
 
 ## 12. Concrete CSS and component behaviour
 
-If `assets/tokens.css` exists, import it globally. Otherwise use the colours and sizes in §2. Default body has no margins, `background:var(--bg-app); color:var(--text-primary); font-size:13px; line-height:1.45; -webkit-font-smoothing:antialiased`. Apply `box-sizing:border-box` globally. Use a thin scrollbar matching surfaces; never force hidden overflow on the whole page if panels scroll.
+**Import `assets/tokens.css` globally first**, before existing app/component styles that might override it. Use its `.quant-btn`, `.quant-btn-primary`, `.quant-btn-sm`, `.quant-input`, `.quant-tabs`, `.quant-table`, `.quant-panel` and shell helpers, or map the tokens to equivalent React components. Read `references/MLFLOW_SOURCE_AUDIT.md` before calling any detail "pixel-identical".
 
-Topbar: `height:48px; background:var(--bg-topbar); border-bottom:1px solid #27415F; display:flex; align-items:center; padding:0 18px;`.
+Apply `box-sizing:border-box` globally and the source-derived system font stack. Use a 4px grid; body background `#11171C`; main text `#E8ECF0`; 13px base. No gradients, glass, oversized rounded cards or purple sidebar accents. Topbar/sidebar positioning and panel dimensions are app-level recommendations, not MLflow source claims.
 
-Sidebar: `width:224px; background:var(--bg-sidebar); border-right:1px solid var(--border); padding:12px 8px;`, nav row height `31px`, radius `4px`, selected left border `2px solid var(--accent)`.
+**Buttons:** base 40px high; 13px font; 16px inline padding; radius 4px; secondary border `#37444F`. Small is 32px high. Primary uses DuBois semantic blue `#4299E0`. Exact visuals may differ if a specific vendored component ships additional scoped overrides. Use visible hover, focus, pressed and disabled styles.
 
-Main area: `min-width:0; flex:1; padding:18px 22px 28px; overflow:auto;`. Do not add a fake centered container. Main header bottom margin `14px`.
+**Inputs and selects:** 40px high; 12px inline padding; 1px border; no pill radius. Tabs use compact 13px labels and 4px underlying primitive vertical padding with a subtle active underline. Tables use dark main background and source hover/selection alphas.
 
-Chart panel: `background:var(--bg-surface); border:1px solid var(--border-soft); border-radius:7px; min-width:0; overflow:hidden;`. Panel header `height:39px; padding:0 14px; border-bottom:1px solid var(--border-soft); display:flex; align-items:center; justify-content:space-between`. Chart canvas should be resize-aware (ResizeObserver/library resize), never fixed pixel width.
+**Charts:** retain analytical requirements in §7 but keep plots neutral and rectangular. Align borders and axis typography with the same DuBois palette; do not use an unrelated plotting-library theme. Colorful plots must not recolour the UI chrome.
 
-Table: width 100%, header 32px, body 36px, `border-collapse:separate; border-spacing:0;` with bottom separators. Numeric class right-aligned with tabular numbers. Sticky header z-index above cells but below popovers. Row hover applies a subtle background rather than shadows.
-
-Control button: `height:31px; padding:0 10px; border:1px solid var(--border); border-radius:5px; background:var(--bg-surface); color:var(--text-secondary); font-size:12px;`. Focus visible 2px accent outline and 2px offset.
-
-Use CSS grid for chart layouts `grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px`. A wide hero analysis chart can span two columns; below 1250px of **content area width** switch to one column when tick labels would collide. Use `min-width:0` on each grid child.
+**Final validation:** take screenshots at 1440×900 and compare at equal scale against a screenshot of the targeted MLflow release. Review typeface, topbar/sidebar colours, selected states, icon glyphs, buttons, tabs, input borders, table density and plot details. This is necessary to claim pixel fidelity. With no reference screenshot available, report "source-grounded MLflow style" rather than "exact replica".
 
 ## 13. Agent procedure: how to apply the skill autonomously
 
@@ -295,8 +311,8 @@ When user's request is purely to restyle an existing app, do not alter research 
 
 ## 14. Final UI self-review — fix failures before declaring done
 
-- [ ] Resembles a quiet dark experiment/research workbench, not a SaaS marketing dashboard.
-- [ ] Topbar, sidebar (if needed), tabs, toolbar, panels, table and charts share one dark palette.
+- [ ] Looks recognisably like the actual MLflow dark UI (not merely another quiet dark dashboard).
+- [ ] Topbar, sidebar (if needed), tabs, toolbar, panels, table and charts use the source DuBois dark palette.
 - [ ] Colour used sparsely, primarily for active controls, series identity and genuine statuses.
 - [ ] At 1440px there is useful visible analysis above the fold; no oversized header or blank space.
 - [ ] Every figure has a meaningful unit, axis, date range and metric definition as applicable.
@@ -306,6 +322,6 @@ When user's request is purely to restyle an existing app, do not alter research 
 - [ ] Side panels and charts resize correctly; panel labels never collide or clip.
 - [ ] Actions really work; empty, loading, error and partial-data states are handled.
 - [ ] Text remains readable; keyboard focus is visible; every icon-only control is labelled.
-- [ ] Does not depend on web searches, image URLs, remote fonts or unavailable UI assets.
+- [ ] Does not depend on live web searches, image URLs, remote fonts or unavailable UI assets; any missing exact icon assets are labelled as a fidelity gap.
 
-**Design directive to remember:** The reference is MLflow's dark experiment tracking structure. The target is a more polished, more consistent, data-dense **quantitative research workbench** with minimal visual noise. If uncertain, choose a simpler layout, fewer colours, smaller radii, a better table, and more precise chart labels.
+**Design directive to remember:** The reference is MLflow's **actual** dark experiment tracking style. The target is a faithful, data-dense **quantitative research workbench** with minimal visual noise. If uncertain, match the source design language first, then choose the simplest layout consistent with correct analytical data.
